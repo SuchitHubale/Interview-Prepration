@@ -32,7 +32,7 @@ export async function signUp(params: SignUpParams) {
     } catch (error: any) {
         console.error('Error signing up:', error);
 
-        if(error.code === 'auth/email-already-exists') {
+        if (error.code === 'auth/email-already-exists') {
             return {
                 success: false,
                 message: 'Email already exists. Please use a different email.'
@@ -59,10 +59,10 @@ export async function signIn(params: SignInParams) {
             }
         }
         await setSessionCookie(idToken);
-    }catch (error: any) {
+    } catch (error: any) {
         console.error('Error signing in:', error);
 
-        if(error.code === 'auth/email-already-exists') {
+        if (error.code === 'auth/email-already-exists') {
             return {
                 success: false,
                 message: 'User not found. Please sign up.'
@@ -80,11 +80,11 @@ export async function setSessionCookie(idToken: string) {
     const cookieStore = cookies();
 
     const sessionCookie = await auth.createSessionCookie(idToken, {
-        expiresIn: ONE_WEEK * 1000 
+        expiresIn: ONE_WEEK * 1000
     });
 
     (await cookieStore).set('session', sessionCookie, {
-        maxAge : ONE_WEEK, // 7 days
+        maxAge: ONE_WEEK, // 7 days
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         path: '/',
@@ -94,32 +94,29 @@ export async function setSessionCookie(idToken: string) {
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-    const cookieStore = cookies();
-    const sessionCookie = (await cookieStore).get('session')?.value;
+    const cookieStore = await cookies();
 
-    if (!sessionCookie) {
-        return null;
-    }
+    const sessionCookie = cookieStore.get("session")?.value;
+    if (!sessionCookie) return null;
 
     try {
         const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
-        
-        const userRecord = await db.
-        collection('users')
-        .doc(decodedClaims.uid)
-        .get();
 
-        if (!userRecord.exists) {
-            return null;
-        }
+        // get user info from db
+        const userRecord = await db
+            .collection("users")
+            .doc(decodedClaims.uid)
+            .get();
+        if (!userRecord.exists) return null;
 
         return {
             ...userRecord.data(),
-            id: userRecord.id
+            id: userRecord.id,
         } as User;
-
     } catch (error) {
-        console.error('Error verifying session cookie:', error);
+        console.log(error);
+
+        // Invalid or expired session
         return null;
     }
 }
@@ -132,33 +129,33 @@ export async function isAuthenticated() {
 
 export async function getInterviewsByUserId(
     userId: string
-  ): Promise<Interview[] | null> {
+): Promise<Interview[] | null> {
     const interviews = await db
-      .collection("interviews")
-      .where("userId", "==", userId)
-      .orderBy("createdAt", "desc")
-      .get();
-  
+        .collection("interviews")
+        .where("userId", "==", userId)
+        .orderBy("createdAt", "desc")
+        .get();
+
     return interviews.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
+        id: doc.id,
+        ...doc.data(),
     })) as Interview[];
-  }
+}
 
 export async function getLatestInterviews(params: GetLatestInterviewsParams): Promise<Interview[] | null> {
-    const { userId, limit = 20 } = params;  
+    const { userId, limit = 20 } = params;
 
 
     const interviews = await db
-      .collection('interviews')
-      .orderBy('createdAt', 'desc')
-      .where('userId', '!=', userId)
-      .where('finalized', '==', true)
-      .limit(limit)
-      .get();
-  
+        .collection('interviews')
+        .orderBy('createdAt', 'desc')
+        .where('userId', '!=', userId)
+        .where('finalized', '==', true)
+        .limit(limit)
+        .get();
+
     return interviews.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
+        id: doc.id,
+        ...doc.data()
     })) as Interview[];
 }
