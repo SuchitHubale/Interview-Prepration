@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import Image from 'next/image'
 import { getRandomInterviewCover } from '@/lib/utils';
 import { Button } from './ui/button';
-import { Link } from 'lucide-react';
+import Link from 'next/link';
 import DisplayTechIcons from './DisplayTechIcons';
 
 
