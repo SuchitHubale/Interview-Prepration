@@ -1,16 +1,11 @@
 import { generateText } from "ai";
 import { google } from "@ai-sdk/google";
 
-
 import { db } from "@/firebase/admin";
 import { getRandomInterviewCover } from "@/lib/utils";
 
 export async function POST(request: Request) {
   const { type, role, level, techstack, amount, userid } = await request.json();
-
-  if (!userid || userid.trim() === "") {
-    return Response.json({ success: false, error: "Missing or empty userid" }, { status: 400 });
-  }
 
   try {
     const { text: questions } = await generateText({
@@ -53,5 +48,4 @@ export async function POST(request: Request) {
 
 export async function GET() {
   return Response.json({ success: true, data: "Thank you!" }, { status: 200 });
-
-};
+}
