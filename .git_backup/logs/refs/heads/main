@@ -1,0 +1,15 @@
+0000000000000000000000000000000000000000 1766addbaa399b42d90eafb4f74c31676b4c9946 SuchitHubale <2217043@ritindia.edu> 1745988848 +0530	commit (initial): Initial commit from Create Next App
+1766addbaa399b42d90eafb4f74c31676b4c9946 5e8685fe689fa7757ab9afaf9242d444decb2b47 SuchitHubale <2217043@ritindia.edu> 1746079419 +0530	commit: setup app, file and folder structure, routing and auth pages
+5e8685fe689fa7757ab9afaf9242d444decb2b47 5e8685fe689fa7757ab9afaf9242d444decb2b47 SuchitHubale <2217043@ritindia.edu> 1746079430 +0530	Branch: renamed refs/heads/master to refs/heads/main
+5e8685fe689fa7757ab9afaf9242d444decb2b47 b1eff46dd09ea7816b9b13e58d84ac4b2cc26610 SuchitHubale <2217043@ritindia.edu> 1746180476 +0530	commit: implement auth and storage
+b1eff46dd09ea7816b9b13e58d84ac4b2cc26610 9d8e67a16a75bb21a5d981169d76197b5237d58c SuchitHubale <2217043@ritindia.edu> 1746251405 +0530	commit: implementing the interview UI
+9d8e67a16a75bb21a5d981169d76197b5237d58c fc6fdb66959979c9a801a404ad5c579d7229ef8b SuchitHubale <2217043@ritindia.edu> 1746351914 +0530	commit: implement interview genration
+fc6fdb66959979c9a801a404ad5c579d7229ef8b 6ecd3858dc3a139c71eda2874eacc09b181cfc59 SuchitHubale <2217043@ritindia.edu> 1746353425 +0530	commit: ignore eslint and typescript error
+6ecd3858dc3a139c71eda2874eacc09b181cfc59 70b411ae7ffd43a5352790829258b7dd1914a48c SuchitHubale <2217043@ritindia.edu> 1746606033 +0530	commit: show generated interviews on the homepage
+70b411ae7ffd43a5352790829258b7dd1914a48c 35df5f94341a47dcf00fe0724a5acbb898376c39 SuchitHubale <2217043@ritindia.edu> 1746616957 +0530	commit: adding the missing userid
+35df5f94341a47dcf00fe0724a5acbb898376c39 b38e84543f831760ecbf93e5c755f7926cbd7439 SuchitHubale <2217043@ritindia.edu> 1746674105 +0530	commit: changes in route
+b38e84543f831760ecbf93e5c755f7926cbd7439 57a8cb6c5864bb6485e1885f28340f7220f5d2a8 SuchitHubale <2217043@ritindia.edu> 1746767372 +0530	commit: Interview prepration with full working
+57a8cb6c5864bb6485e1885f28340f7220f5d2a8 57a8cb6c5864bb6485e1885f28340f7220f5d2a8 SuchitHubale <2217043@ritindia.edu> 1746767382 +0530	Branch: renamed refs/heads/main to refs/heads/main
+57a8cb6c5864bb6485e1885f28340f7220f5d2a8 11ce0e3656ecaf05aeca488aa54c5842da0d39c2 SuchitHubale <2217043@ritindia.edu> 1746785000 +0530	commit: change the Project Name
+11ce0e3656ecaf05aeca488aa54c5842da0d39c2 a6989882dce5bdeb33fc8091d80d475766815d20 SuchitHubale <2217043@ritindia.edu> 1746785056 +0530	pull origin main --rebase (finish): refs/heads/main onto a87470d2c409973e541b67ebeb3948c403e8757b
+a6989882dce5bdeb33fc8091d80d475766815d20 f7666cd224a213e979f8605472de4a464386c0bd SuchitHubale <2217043@ritindia.edu> 1746785293 +0530	commit: change the complet Project Name
