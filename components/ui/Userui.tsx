@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import type { Variants } from "framer-motion";
 import { motion, useAnimation } from "framer-motion";
@@ -37,20 +37,14 @@ const Userui = ({
   height = 28,
   strokeWidth = 2,
   stroke = "#ffffff",
+  className = "",
   ...props
 }: UserProps) => {
   const controls = useAnimation();
 
   return (
     <div
-      style={{
-        cursor: "pointer",
-        userSelect: "none",
-        padding: "8px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
+      className={`cursor-pointer select-none p-2 flex items-center justify-center ${className}`}
       onMouseEnter={() => controls.start("animate")}
       onMouseLeave={() => controls.start("normal")}
     >
