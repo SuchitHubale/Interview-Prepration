@@ -1,6 +1,7 @@
 'use client';
 
 import Agent from "@/components/Agent";
+import Loading from "@/components/loading";
 import { getCurrentUser } from "@/lib/actions/auth.action";
 import { useEffect, useState } from "react";
 
@@ -14,11 +15,7 @@ const Page = () => {
   }, []);
 
   if (!user){
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    )
+    return <Loading />;
   }
 
 

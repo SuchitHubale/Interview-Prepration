@@ -104,8 +104,11 @@ function FormLabel({
   )
 }
 
-function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
+function FormControl({ ...props }: React.ComponentProps<typeof Slot> & { fdprocessedid?: string }) {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+  
+  // Remove fdprocessedid from props to prevent hydration mismatch
+  const { fdprocessedid: _fdprocessedid, ...restProps } = props;
 
   return (
     <Slot
@@ -117,7 +120,7 @@ function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
           : `${formDescriptionId} ${formMessageId}`
       }
       aria-invalid={!!error}
-      {...props}
+      {...restProps}
     />
   )
 }

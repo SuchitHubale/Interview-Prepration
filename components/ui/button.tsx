@@ -46,12 +46,15 @@ function Button({
     asChild?: boolean
   }) {
   const Comp = asChild ? Slot : "button"
+  
+  // Remove fdprocessedid from props to prevent hydration mismatch
+  const { fdprocessedid: _fdprocessedid, ...restProps } = props;
 
   return (
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
+      {...restProps}
     />
   )
 }

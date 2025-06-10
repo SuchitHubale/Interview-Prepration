@@ -95,7 +95,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
       toast.error(`There was an error: ${error}`);
     }
   };
-
+  
   const isSignIn = type === "sign-in";
 
   return (
@@ -106,7 +106,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
           <h2 className="text-primary-100">Intervue.AI</h2>
         </div>
 
-        <h3>Practice job interviews with AI</h3>
+        <h3>{isSignIn ? "Sign in to your existing account" : "Create a new account"}</h3>
 
         <Form {...form}>
           <form
@@ -114,13 +114,13 @@ const AuthForm = ({ type }: { type: FormType }) => {
             className="w-full space-y-6 mt-4 form"
           >
             {!isSignIn && (
+              
               <FormField
                 control={form.control}
                 name="name"
                 label="Name"
                 placeholder="Your Name"
-                type="text"
-              />
+                type="text" />
             )}
 
             <FormField

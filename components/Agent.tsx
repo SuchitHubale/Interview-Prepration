@@ -196,7 +196,7 @@ const Agent = ({
         </div>
       )}
 
-      <div className="w-full flex justify-center mt-2">
+      <div className="w-full flex justify-center">
         {callStatus !== "ACTIVE" ? (
           <button className="relative btn-call" onClick={() => handleCall()}>
             <span
