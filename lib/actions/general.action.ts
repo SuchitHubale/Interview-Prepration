@@ -27,15 +27,64 @@ export async function createFeedback(params: CreateFeedbackParams) {
         Transcript:
         ${formattedTranscript}
 
-        Please score the candidate from 0 to 100 in the following areas. Do not add categories other than the ones provided:
-        - **Communication Skills**: Clarity, articulation, structured responses.
-        - **Technical Knowledge**: Understanding of key concepts for the role.
-        - **Problem-Solving**: Ability to analyze problems and propose solutions.
-        - **Cultural & Role Fit**: Alignment with company values and job role.
-        - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
-        `,
+        Please provide a detailed analysis in the following format:
+
+        1. Overall Assessment (0-100):
+        - Provide a comprehensive evaluation of the candidate's performance
+        - Highlight key strengths and major areas of concern
+        - Include specific examples from the interview
+
+        2. Category-wise Analysis (0-100 for each):
+        - Communication Skills: Evaluate clarity, articulation, and structured responses
+        - Technical Knowledge: Assess understanding of key concepts and depth of knowledge
+        - Problem-Solving: Analyze approach to problems and solution quality
+        - Cultural & Role Fit: Evaluate alignment with company values and job requirements
+        - Confidence & Clarity: Assess confidence level and response clarity
+
+        3. Detailed Feedback:
+        - For each category, provide:
+          * Specific examples of good responses
+          * Examples of responses that needed improvement
+          * Concrete suggestions for improvement
+          * Best practices and tips for future interviews
+
+        4. Strengths:
+        - List specific strengths demonstrated during the interview
+        - Include examples of particularly strong responses
+        - Highlight unique qualities that stood out
+
+        5. Areas for Improvement:
+        - List specific areas that need work
+        - Provide detailed suggestions for improvement
+        - Include examples of better ways to answer specific questions
+        - Add practical tips for preparation
+
+        6. Action Plan:
+        - Provide a structured plan for improvement
+        - Include specific resources or topics to study
+        - Suggest practice exercises or mock interview scenarios
+        - Recommend ways to develop identified weaknesses
+
+        Be specific and actionable in your feedback. Instead of general statements like "improve communication", provide concrete examples and specific suggestions like "When explaining technical concepts, start with a high-level overview before diving into details. For example, when discussing system architecture, you could say 'This system follows a microservices architecture, which means...'"
+
+        Format your response as a JSON object with the following structure:
+        {
+          "totalScore": number,
+          "finalAssessment": string,
+          "categoryScores": [
+            {
+              "name": string,
+              "score": number,
+              "comment": string
+            }
+          ],
+          "strengths": string[],
+          "areasForImprovement": string[],
+          "actionPlan": string[]
+        }
+      `,
       system:
-        "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
+        "You are a professional interviewer providing detailed, actionable feedback to help candidates improve their interview performance. Focus on specific examples and concrete suggestions rather than general advice.",
     });
 
     const feedback = {
@@ -46,6 +95,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
       strengths: object.strengths,
       areasForImprovement: object.areasForImprovement,
       finalAssessment: object.finalAssessment,
+      actionPlan: object.actionPlan,
       createdAt: new Date().toISOString(),
     };
 
