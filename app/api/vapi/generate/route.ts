@@ -5,41 +5,59 @@ import { db } from "@/firebase/admin";
 import { getRandomInterviewCover } from "@/lib/utils";
 
 export async function POST(request: Request) {
-  const { type, role, level, techstack, amount, userid } = await request.json();
+  const { type, role, level, techstack, amount, userid, questions } = await request.json();
 
   try {
-    const { text: questions } = await generateText({
-      model: google("gemini-2.0-flash-001"),
-      prompt: `Prepare questions for a job interview.
-        The job role is ${role}.
-        The job experience level is ${level}.
-        The tech stack used in the job is: ${techstack}.
-        The focus between behavioural and technical questions should lean towards: ${type}.
-        The amount of questions required is: ${amount}.
-        Please return only the questions, without any additional text.
-        The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
-        Return the questions formatted like this:
-        ["Question 1", "Question 2", "Question 3"]
-        
-        Thank you! <3
-    `,
-    });
+    let generatedQuestions;
+    
+    // If questions are not provided, generate them
+    if (!questions) {
+      const { text: questionsText } = await generateText({
+        model: google("gemini-2.0-flash-001"),
+        prompt: `Prepare questions for a job interview.
+          The job role is ${role}.
+          The job experience level is ${level}.
+          The tech stack used in the job is: ${Array.isArray(techstack) ? techstack.join(', ') : techstack}.
+          The focus between behavioural and technical questions should lean towards: ${type}.
+          The amount of questions required is: ${amount}.
+          Please return only the questions, without any additional text.
+          The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
+          Return the questions formatted like this:
+          ["Question 1", "Question 2", "Question 3"]
+          
+          Thank you! <3
+      `,
+      });
+      generatedQuestions = JSON.parse(questionsText);
+    }
 
+    // If this is just a question generation request, return the questions
+    if (!userid) {
+      return Response.json({ 
+        success: true, 
+        questions: generatedQuestions 
+      }, { status: 200 });
+    }
+
+    // Otherwise, create the interview
     const interview = {
       role: role,
       type: type,
       level: level,
-      techstack: techstack.split(","),
-      questions: JSON.parse(questions),
+      techstack: Array.isArray(techstack) ? techstack : techstack.split(","),
+      questions: questions || generatedQuestions,
       userId: userid,
       finalized: true,
       coverImage: getRandomInterviewCover(),
       createdAt: new Date().toISOString(),
     };
 
-    await db.collection("interviews").add(interview);
+    const docRef = await db.collection("interviews").add(interview);
 
-    return Response.json({ success: true }, { status: 200 });
+    return Response.json({ 
+      success: true, 
+      interviewId: docRef.id 
+    }, { status: 200 });
   } catch (error) {
     console.error("Error:", error);
     return Response.json({ success: false, error: error }, { status: 500 });
