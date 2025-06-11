@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 interface ManualInterviewFormProps {
   userId: string;
@@ -11,64 +12,34 @@ interface ManualInterviewFormProps {
 const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [formData, setFormData] = useState({
     role: '',
     level: 'Junior',
     type: 'Technical',
     techstack: '',
-    questions: '',
     amount: 5,
   });
 
-  const generateQuestions = async () => {
-    if (!formData.role || !formData.techstack) {
-      alert('Please fill in the role and tech stack first');
-      return;
-    }
-
-    setIsGeneratingQuestions(true);
-    try {
-      const response = await fetch('/api/vapi/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          role: formData.role,
-          level: formData.level,
-          type: formData.type,
-          techstack: formData.techstack.split(',').map(tech => tech.trim()),
-          amount: formData.amount,
-        }),
-      });
-
-      const data = await response.json();
-      if (data.success && data.questions) {
-        setFormData(prev => ({
-          ...prev,
-          questions: data.questions.join('\n\n')
-        }));
-      } else {
-        console.error('Failed to generate questions');
-        alert('Failed to generate questions. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while generating questions. Please try again.');
-    } finally {
-      setIsGeneratingQuestions(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.questions.trim()) {
-      alert('Please generate or enter questions first');
+    
+    // Validate form data
+    if (!formData.role.trim()) {
+      toast.error('Please enter a role');
+      return;
+    }
+    if (!formData.techstack.trim()) {
+      toast.error('Please enter at least one technology');
+      return;
+    }
+    if (formData.amount < 1 || formData.amount > 20) {
+      toast.error('Number of questions must be between 1 and 20');
       return;
     }
 
     setIsLoading(true);
+    const loadingToast = toast.loading('Creating your interview...');
+
     try {
       const response = await fetch('/api/vapi/generate', {
         method: 'POST',
@@ -78,7 +49,6 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
         body: JSON.stringify({
           ...formData,
           techstack: formData.techstack.split(',').map(tech => tech.trim()),
-          questions: formData.questions.split('\n').filter(q => q.trim()),
           userid: userId,
         }),
       });
@@ -86,16 +56,43 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
       const data = await response.json();
 
       if (data.success && data.interviewId) {
+        toast.success('Interview created successfully!', { id: loadingToast });
         router.push(`/interview/${data.interviewId}`);
       } else {
-        console.error('Failed to create interview');
-        alert('Failed to create interview. Please try again.');
+        throw new Error(data.message || 'Failed to create interview');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred while creating the interview. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to create interview. Please try again.', { id: loadingToast });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleTechStackChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData({ ...formData, techstack: value });
+    
+    // Show warning if too many technologies
+    const techCount = value.split(',').filter(tech => tech.trim()).length;
+    if (techCount > 5) {
+      toast('Consider focusing on 3-5 key technologies for better results', {
+        icon: '💡',
+        duration: 4000,
+      });
+    }
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    setFormData({ ...formData, amount: value });
+    
+    // Show warning if too many questions
+    if (value > 15) {
+      toast('A longer interview may be more challenging to complete', {
+        icon: '⚠️',
+        duration: 4000,
+      });
     }
   };
 
@@ -167,11 +164,14 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
             <input
               type="text"
               value={formData.techstack}
-              onChange={(e) => setFormData({ ...formData, techstack: e.target.value })}
+              onChange={handleTechStackChange}
               className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="e.g., React, TypeScript, Next.js"
               required
             />
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Enter technologies separated by commas
+            </p>
           </div>
 
           <div>
@@ -183,45 +183,14 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
               min="1"
               max="20"
               value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: parseInt(e.target.value) })}
+              onChange={handleAmountChange}
               className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               required
             />
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Recommended: 5-15 questions
+            </p>
           </div>
-        </div>
-
-        <motion.button
-          type="button"
-          onClick={generateQuestions}
-          disabled={isGeneratingQuestions}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
-        >
-          {isGeneratingQuestions ? (
-            <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Generating Questions...
-            </span>
-          ) : (
-            'Generate Questions with AI'
-          )}
-        </motion.button>
-
-        <div>
-          <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-            Questions (one per line)
-          </label>
-          <textarea
-            value={formData.questions}
-            onChange={(e) => setFormData({ ...formData, questions: e.target.value })}
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-48 resize-none"
-            placeholder="Questions will appear here after generation, or you can enter them manually"
-            required
-          />
         </div>
 
         <motion.button
