@@ -10,6 +10,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/actions/auth.action";
+import { QASection } from "./QASection";
 
 interface RouteParams {
   params: {
@@ -48,20 +49,20 @@ const Feedback = async ({ params }: RouteParams) => {
   };
 
   return (
-    <section className="section-feedback max-w-4xl mx-auto">
-      {/* Header Section */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4">
+    <section className="section-feedback max-w-4xl mx-auto px-4 py-8">
+      {/* Header Section with Overall Score */}
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-6">
           Interview Feedback
         </h1>
-        <div className="flex items-center justify-center gap-4 text-gray-600 dark:text-gray-300">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-gray-600 dark:text-gray-300">
+          <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             <span>{dayjs(feedback?.createdAt).format("MMM D, YYYY")}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
             <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
@@ -78,7 +79,7 @@ const Feedback = async ({ params }: RouteParams) => {
           </svg>
           Quick Summary
         </h2>
-        <p className="text-lg">{feedback?.finalAssessment}</p>
+        <p className="text-lg leading-relaxed">{feedback?.finalAssessment}</p>
       </div>
 
       {/* Category Scores */}
@@ -108,6 +109,9 @@ const Feedback = async ({ params }: RouteParams) => {
           </div>
         ))}
       </div>
+
+      {/* Q&A Section */}
+      {feedback?.qaData && <QASection qaData={feedback.qaData} />}
 
       {/* Strengths & Improvements Side by Side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">

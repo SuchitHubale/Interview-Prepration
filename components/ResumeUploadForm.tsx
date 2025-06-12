@@ -24,6 +24,7 @@ const ResumeUploadForm = ({ userId }: ResumeUploadFormProps) => {
   const [selectedType, setSelectedType] = useState('Technical');
   const [customRole, setCustomRole] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
+  const [duration, setDuration] = useState('');
 
   const roles = [
     'Software Developer',
@@ -45,6 +46,31 @@ const ResumeUploadForm = ({ userId }: ResumeUploadFormProps) => {
     'Problem Solving',
     'Leadership'
   ];
+
+  // Calculate number of questions based on duration
+  const calculateQuestions = (duration: number) => {
+    // Assuming 5-7 minutes per question
+    const minQuestions = Math.floor(duration / 7);
+    const maxQuestions = Math.floor(duration / 5);
+    return { minQuestions, maxQuestions };
+  };
+
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDuration(value);
+    
+    // Only show question estimate if we have a valid number
+    if (value !== '' && !isNaN(parseInt(value))) {
+      const numValue = parseInt(value);
+      if (numValue >= 15 && numValue <= 120) {
+        const { minQuestions, maxQuestions } = calculateQuestions(numValue);
+        toast(`This will generate ${minQuestions}-${maxQuestions} questions`, {
+          icon: '💡',
+          duration: 3000,
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -158,6 +184,17 @@ const ResumeUploadForm = ({ userId }: ResumeUploadFormProps) => {
       return;
     }
 
+    // Validate duration
+    const durationValue = parseInt(duration);
+    if (isNaN(durationValue)) {
+      toast.error('Please enter a valid duration');
+      return;
+    }
+    if (durationValue < 15 || durationValue > 120) {
+      toast.error('Interview duration must be between 15 and 120 minutes');
+      return;
+    }
+
     setIsLoading(true);
     setProgress(0);
     const processingToast = toast.loading('Processing your resume...');
@@ -186,6 +223,10 @@ const ResumeUploadForm = ({ userId }: ResumeUploadFormProps) => {
       toast.loading('Analyzing resume content...', { id: processingToast });
       const extractedInfo = extractInfoFromText(text);
 
+      // Calculate number of questions based on duration
+      const { minQuestions, maxQuestions } = calculateQuestions(durationValue);
+      const averageQuestions = Math.round((minQuestions + maxQuestions) / 2);
+
       // Generate interview
       toast.loading('Generating interview questions...', { id: processingToast });
       const response = await fetch('/api/vapi/generate', {
@@ -198,6 +239,7 @@ const ResumeUploadForm = ({ userId }: ResumeUploadFormProps) => {
           role: selectedRole === 'Other' ? customRole : selectedRole,
           type: selectedType,
           userid: userId,
+          amount: averageQuestions,
         }),
       });
 
@@ -372,6 +414,26 @@ const ResumeUploadForm = ({ userId }: ResumeUploadFormProps) => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Interview Duration (minutes)
+              </label>
+              <input
+                type="number"
+                min="15"
+                max="120"
+                step="15"
+                value={duration}
+                onChange={handleDurationChange}
+                className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                placeholder="Enter duration (15-120 minutes)"
+                required
+              />
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Enter duration between 15-120 minutes (approximately 5-7 minutes per question)
+              </p>
             </div>
 
             <motion.button

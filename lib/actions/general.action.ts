@@ -6,6 +6,54 @@ import { google } from "@ai-sdk/google";
 import { db } from "@/firebase/admin";
 import { feedbackSchema } from "@/constants";
 
+interface CreateFeedbackParams {
+  interviewId: string;
+  userId: string;
+  transcript: { role: string; content: string }[];
+  feedbackId?: string;
+}
+
+interface Interview {
+  id: string;
+  userId: string;
+  createdAt: string;
+  finalized: boolean;
+  [key: string]: any;
+}
+
+interface Feedback {
+  id: string;
+  interviewId: string;
+  userId: string;
+  totalScore: number;
+  categoryScores: {
+    name: string;
+    score: number;
+    comment: string;
+  }[];
+  qaData: {
+    question: string;
+    userAnswer: string;
+    aiAnswer: string;
+    suggestion: string;
+  }[];
+  strengths: string[];
+  areasForImprovement: string[];
+  finalAssessment: string;
+  actionPlan: string[];
+  createdAt: string;
+}
+
+interface GetFeedbackByInterviewIdParams {
+  interviewId: string;
+  userId: string;
+}
+
+interface GetLatestInterviewsParams {
+  userId: string;
+  limit?: number;
+}
+
 export async function createFeedback(params: CreateFeedbackParams) {
   const { interviewId, userId, transcript, feedbackId } = params;
 
@@ -41,25 +89,38 @@ export async function createFeedback(params: CreateFeedbackParams) {
         - Cultural & Role Fit: Evaluate alignment with company values and job requirements
         - Confidence & Clarity: Assess confidence level and response clarity
 
-        3. Detailed Feedback:
+        3. Q&A Analysis:
+        For each question-answer pair in the interview:
+        - Extract the question asked
+        - Record the candidate's answer
+        - Provide an ideal answer that demonstrates best practices
+        - Give specific suggestions for improvement
+        Focus on:
+        * Structure and organization of the answer
+        * Technical accuracy and depth
+        * Communication clarity
+        * Examples and evidence provided
+        * Areas where the answer could be strengthened
+
+        4. Detailed Feedback:
         - For each category, provide:
           * Specific examples of good responses
           * Examples of responses that needed improvement
           * Concrete suggestions for improvement
           * Best practices and tips for future interviews
 
-        4. Strengths:
+        5. Strengths:
         - List specific strengths demonstrated during the interview
         - Include examples of particularly strong responses
         - Highlight unique qualities that stood out
 
-        5. Areas for Improvement:
+        6. Areas for Improvement:
         - List specific areas that need work
         - Provide detailed suggestions for improvement
         - Include examples of better ways to answer specific questions
         - Add practical tips for preparation
 
-        6. Action Plan:
+        7. Action Plan:
         - Provide a structured plan for improvement
         - Include specific resources or topics to study
         - Suggest practice exercises or mock interview scenarios
@@ -78,6 +139,14 @@ export async function createFeedback(params: CreateFeedbackParams) {
               "comment": string
             }
           ],
+          "qaData": [
+            {
+              "question": string,
+              "userAnswer": string,
+              "aiAnswer": string,
+              "suggestion": string
+            }
+          ],
           "strengths": string[],
           "areasForImprovement": string[],
           "actionPlan": string[]
@@ -92,6 +161,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
       userId: userId,
       totalScore: object.totalScore,
       categoryScores: object.categoryScores,
+      qaData: object.qaData,
       strengths: object.strengths,
       areasForImprovement: object.areasForImprovement,
       finalAssessment: object.finalAssessment,

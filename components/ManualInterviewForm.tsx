@@ -17,8 +17,16 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
     level: 'Junior',
     type: 'Technical',
     techstack: '',
-    amount: 5,
+    duration: '' as string | number,
   });
+
+  // Calculate number of questions based on duration
+  const calculateQuestions = (duration: number) => {
+    // Assuming 5-7 minutes per question
+    const minQuestions = Math.floor(duration / 7);
+    const maxQuestions = Math.floor(duration / 5);
+    return { minQuestions, maxQuestions };
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,8 +40,15 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
       toast.error('Please enter at least one technology');
       return;
     }
-    if (formData.amount < 1 || formData.amount > 20) {
-      toast.error('Number of questions must be between 1 and 20');
+    
+    // Validate duration
+    const duration = parseInt(formData.duration as any);
+    if (isNaN(duration)) {
+      toast.error('Please enter a valid duration');
+      return;
+    }
+    if (duration < 15 || duration > 120) {
+      toast.error('Interview duration must be between 15 and 120 minutes');
       return;
     }
 
@@ -41,6 +56,9 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
     const loadingToast = toast.loading('Creating your interview...');
 
     try {
+      const { minQuestions, maxQuestions } = calculateQuestions(duration);
+      const averageQuestions = Math.round((minQuestions + maxQuestions) / 2);
+
       const response = await fetch('/api/vapi/generate', {
         method: 'POST',
         headers: {
@@ -50,6 +68,7 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
           ...formData,
           techstack: formData.techstack.split(',').map(tech => tech.trim()),
           userid: userId,
+          amount: averageQuestions,
         }),
       });
 
@@ -83,16 +102,20 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
     }
   };
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    setFormData({ ...formData, amount: value });
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData({ ...formData, duration: value === '' ? '' : parseInt(value) });
     
-    // Show warning if too many questions
-    if (value > 15) {
-      toast('A longer interview may be more challenging to complete', {
-        icon: '⚠️',
-        duration: 4000,
-      });
+    // Only show question estimate if we have a valid number
+    if (value !== '' && !isNaN(parseInt(value))) {
+      const numValue = parseInt(value);
+      if (numValue >= 15 && numValue <= 120) {
+        const { minQuestions, maxQuestions } = calculateQuestions(numValue);
+        toast(`This will generate ${minQuestions}-${maxQuestions} questions`, {
+          icon: '💡',
+          duration: 3000,
+        });
+      }
     }
   };
 
@@ -176,19 +199,21 @@ const ManualInterviewForm = ({ userId }: ManualInterviewFormProps) => {
 
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-              Number of Questions
+              Interview Duration (minutes)
             </label>
             <input
               type="number"
-              min="1"
-              max="20"
-              value={formData.amount}
-              onChange={handleAmountChange}
+              min="15"
+              max="120"
+              step="15"
+              value={formData.duration}
+              onChange={handleDurationChange}
               className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               required
+              placeholder="Enter duration (15-120 minutes)"
             />
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Recommended: 5-15 questions
+              Enter duration between 15-120 minutes (approximately 5-7 minutes per question)
             </p>
           </div>
         </div>
