@@ -21,7 +21,7 @@ export const ProfileAbout = ({
           <Label htmlFor="bio">Bio</Label>
           <Input
             id="bio"
-            value={profileData.bio}
+            value={profileData.bio ?? ""}
             onChange={(e) => onProfileChange({ bio: e.target.value })}
           />
         </div>
@@ -29,7 +29,7 @@ export const ProfileAbout = ({
           <Label htmlFor="location">Location</Label>
           <Input
             id="location"
-            value={profileData.location}
+            value={profileData.location ?? ""}
             onChange={(e) => onProfileChange({ location: e.target.value })}
           />
         </div>

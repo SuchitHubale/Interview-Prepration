@@ -30,20 +30,19 @@ export async function signUp(params: SignUpParams) {
   const { uid, name, email } = params;
 
   try {
-    // check if user exists in db
     const userRecord = await db.collection("users").doc(uid).get();
-    if (userRecord.exists)
+    if (userRecord.exists) {
       return {
         success: false,
         message: "User already exists. Please sign in.",
       };
+    }
 
-    // save user to db
+    // Save to database
     await db.collection("users").doc(uid).set({
       name,
       email,
-      // profileURL,
-      // resumeURL,
+      authProvider: "password" in params ? "email" : "google", // optional extra
     });
 
     return {
@@ -52,15 +51,6 @@ export async function signUp(params: SignUpParams) {
     };
   } catch (error: any) {
     console.error("Error creating user:", error);
-
-    // Handle Firebase specific errors
-    if (error.code === "auth/email-already-exists") {
-      return {
-        success: false,
-        message: "This email is already in use",
-      };
-    }
-
     return {
       success: false,
       message: "Failed to create account. Please try again.",
@@ -68,20 +58,28 @@ export async function signUp(params: SignUpParams) {
   }
 }
 
+
 export async function signIn(params: SignInParams) {
   const { email, idToken } = params;
 
   try {
     const userRecord = await auth.getUserByEmail(email);
-    if (!userRecord)
+    if (!userRecord) {
       return {
         success: false,
         message: "User does not exist. Create an account.",
       };
+    }
 
     await setSessionCookie(idToken);
+
+    // ✅ Explicitly return success
+    return {
+      success: true,
+      message: "Signed in successfully.",
+    };
   } catch (error: any) {
-    console.log("");
+    console.error("Sign-in error:", error);
 
     return {
       success: false,
@@ -89,6 +87,7 @@ export async function signIn(params: SignInParams) {
     };
   }
 }
+
 
 // Sign out user by clearing the session cookie
 export async function signOut() {

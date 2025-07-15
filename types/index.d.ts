@@ -83,12 +83,22 @@ interface SignInParams {
   idToken: string;
 }
 
-interface SignUpParams {
+interface EmailPasswordSignUpParams {
   uid: string;
   name: string;
   email: string;
   password: string;
 }
+
+interface OAuthSignUpParams {
+  uid: string;
+  name: string;
+  email: string;
+  password?: undefined; // explicitly no password
+}
+
+// Union type
+type SignUpParams = EmailPasswordSignUpParams | OAuthSignUpParams;
 
 type FormType = "sign-in" | "sign-up";
 

@@ -8,7 +8,7 @@ import { Userui } from "@/components/ui/Userui";
 
 const Layout = async ({ children }: { children: ReactNode }) => {
   const isUserAuthenticated = await isAuthenticated();
-  if (!isUserAuthenticated) redirect("/sign-up");
+  if (!isUserAuthenticated) redirect("/sign-in");
 
   return (
     <div className="root-layout">

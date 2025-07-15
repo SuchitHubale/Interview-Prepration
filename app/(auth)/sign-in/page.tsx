@@ -1,7 +1,6 @@
+"use client";
 import AuthForm from "@/components/AuthForm";
 
-const Page = () => {
+export default function SignInPage() {
   return <AuthForm type="sign-in" />;
-};
-
-export default Page;
+}
