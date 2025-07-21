@@ -26,8 +26,8 @@ export async function setSessionCookie(idToken: string) {
   });
 }
 
-export async function signUp(params: SignUpParams) {
-  const { uid, name, email } = params;
+export async function signUp(params: SignUpParams & { idToken: string }) {
+  const { uid, name, email, idToken } = params;
 
   try {
     const userRecord = await db.collection("users").doc(uid).get();
@@ -42,12 +42,14 @@ export async function signUp(params: SignUpParams) {
     await db.collection("users").doc(uid).set({
       name,
       email,
-      authProvider: "password" in params ? "email" : "google", // optional extra
+      authProvider: "password" in params ? "email" : "google",
     });
+
+    await setSessionCookie(idToken);
 
     return {
       success: true,
-      message: "Account created successfully. Please sign in.",
+      message: "Account created successfully.",
     };
   } catch (error: any) {
     console.error("Error creating user:", error);

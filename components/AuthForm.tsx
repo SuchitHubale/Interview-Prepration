@@ -58,11 +58,12 @@ const AuthForm = ({ type }: { type: FormType }) => {
           password
         );
 
+        const idToken = await userCredential.user.getIdToken();
         const result = await signUp({
           uid: userCredential.user.uid,
           name: name!,
           email,
-          password,
+          idToken,
         });
 
         if (!result.success) {
@@ -70,8 +71,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
           return;
         }
 
-        toast.success("Account created successfully. Please sign in.");
-        router.push("/sign-in");
+        toast.success("Account created successfully.");
+        router.push("/");
       } else {
         const { email, password } = data;
 
@@ -129,6 +130,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         uid: user.uid,
         name,
         email,
+        idToken,
       });
 
       if (!signUpResult.success && signUpResult.message.includes("already exists")) {
@@ -186,6 +188,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         uid: user.uid,
         name,
         email,
+        idToken,
       });
 
       if (!signUpResult.success && signUpResult.message.includes("already exists")) {
