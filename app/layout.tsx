@@ -2,6 +2,7 @@ import { Toaster } from "sonner";
 import type { Metadata } from "next";
 import { Mona_Sans } from "next/font/google";
 import { Toaster as HotToaster } from 'react-hot-toast';
+import PasswordProtectedLayout from './password-layout';
 
 import "./globals.css";
 
@@ -28,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${monaSans.className} antialiased pattern`}>
-        {children}
+        <PasswordProtectedLayout>
+          {children}
+        </PasswordProtectedLayout>
         <Toaster />
         <HotToaster position="top-center" />
       </body>
